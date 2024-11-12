@@ -10,7 +10,8 @@
     ./hardware-configuration.nix
     ./users.nix
     ./38c3-network.nix
-    ./sops/fetch.nix
+    ./zfs.nix
+    ./sops_fetch.nix
   ];
 
   # Bootloader.
@@ -67,20 +68,13 @@
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-    vim 
+    vim
     wget
-    k3s
-    kubectl
-    fluxcd
     sops
     nixfmt-rfc-style
   ];
 
   security.sudo.wheelNeedsPassword = false;
-
-  environment.variables = {
-    KUBECONFIG = "/etc/rancher/k3s/k3s.yaml";
-  };
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
@@ -94,14 +88,6 @@
 
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
-  services.k3s.enable = true;
-  services.k3s.role = "server";
-  services.k3s.extraFlags = toString [
-    "--disable servicelb"
-    "--disable traefik"
-    "--write-kubeconfig-mode 644"
-  ];
-
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions

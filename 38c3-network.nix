@@ -15,8 +15,7 @@
   '';
 
   networking.firewall.allowedUDPPorts = [ 646 ]; # Port used for LLDP
-  
-  
+
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
   # networking.firewall.allowedUDPPorts = [ ... ];
