@@ -11,7 +11,7 @@ in
 {
   # Ensure the system automatically mounts the USB with label "ventoy"
   fileSystems."/mnt/ventoy" = {
-    device = "LABEL=ventoy"; # Specify the device by its label
+    device = "LABEL=Ventoy"; # Specify the device by its label
     fsType = "auto"; # Automatically detect filesystem type
     options = [
       "nofail"

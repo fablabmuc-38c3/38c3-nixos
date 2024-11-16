@@ -29,9 +29,7 @@
       neovim
     ];
     openssh.authorizedKeys.keys = [
-      "
-    ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICiyUMQ0cq4JoU1aDRq4QwSMxva3+pdayZ2pSi1PG8Gl 38c3-server-simon
-    "
+    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICiyUMQ0cq4JoU1aDRq4QwSMxva3+pdayZ2pSi1PG8Gl 38c3-server-simon"
     ];
   };
 }
