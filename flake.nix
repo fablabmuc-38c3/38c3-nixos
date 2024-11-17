@@ -28,7 +28,7 @@
           inherit system;
           modules = [
             ./configuration.nix
-	    disko.nixosModules.disko
+            disko.nixosModules.disko
             sops-nix.nixosModules.sops
             (
               { pkgs, ... }:

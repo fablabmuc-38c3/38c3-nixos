@@ -12,12 +12,26 @@
     ./38c3-network.nix
     ./zfs.nix
     ./disko-config.nix
-   # ./sops_fetch.nix
+    # ./sops_fetch.nix
   ];
-disko.devices.disk.main.device = "/dev/nvme0n1";
+  nix.settings.trusted-users = [ "@wheel" ];
+
+  disko.devices.disk.main.device = "/dev/sda";
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
+
+  services.avahi = {
+    enable = true;
+    nssmdns4 = true; # for IPv4
+    nssmdns6 = true; # for IPv6 if you need it
+    publish = {
+      enable = true;
+      addresses = true;
+      workstation = true;
+    };
+    openFirewall = true; # This handles the firewall rules automatically
+  };
 
   networking.hostName = "fablabmuc-38c3"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
@@ -72,6 +86,8 @@ disko.devices.disk.main.device = "/dev/nvme0n1";
     wget
     sops
     nixfmt-rfc-style
+    git
+    kitty
   ];
 
   security.sudo.wheelNeedsPassword = false;
