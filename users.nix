@@ -50,4 +50,22 @@
       "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC5xNAN8EIB7ZxUbSIWFq+I+5FNroI/fO6uI/jCheFaa2VvzIT7wQk09zFZTHN7cvgIs/hqBJSdvizoMqo6KtlytdnID3CWJznSS+6MbG1q+/uFEUqQlJGM6L+c34Y4X/wf3qXQeiflj9VMk9ZyiMfgcTcNDN9sWhqYg1G2Rq9Wrtd4pbPfmDV9DgW1dI10FHbWaqCd+DPGTlDV4lq9EHZLBocV3pN8eoct0rcTCh1G0ARi3UWya30RBw5kNfyCGc6Xplut4768jHOMqBIzQqvFcDWlzWhBAkXVukTwbZVm+R+1nNexs0K7sd1kWdT+yOooIv93VYTrWKFJK37pbg8OX/wE6QgeubX75Kys0xMi2ivr2GQi0k8vzLEGlYM9ktIGLFF9wsLiyIozq/lpZ+At1BSEPguDD4mylNrJyTSvMNpARWH6HfDjE4fmrtFOQHl5KXbzRQziKj2+BMDkXgI8Q52G5XzBpzZhukpsk5G53wamllhJM9CV5qoMgbkrHE6N+dEAQ2MrhLt2DILwvQsaYONBnZhYK9ZP9pt+9H/SV9766ZRnwQDTc27AN6jz+5auCaEpvmAjxdARugJQWA55+6N1kLf1ATzNQEkT/3iL44yRTiosoYjLpACvUEmyKFEJYLMFkdMMYpSp1uJ6B3RJ4qQv0ZY3RBZCpEpCRW+3qw=="
     ];
   };
+
+  users.users.huber1 = {
+    isNormalUser = true;
+    description = "Moritz Huber";
+    shell = pkgs.zsh;
+    extraGroups = [
+      "networkmanager"
+      "wheel"
+    ];
+    packages = with pkgs; [
+      k9s
+      neovim
+    ];
+    openssh.authorizedKeys.keys = [
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDUUz0Z9HISfITuG7cUnN3PMvxUbvRMHfFwvy8HvwDG8"
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIER5dTWkG/HH2JuWtyQGl892dLBqIvblDnWUIwI9Os1D"
+    ];
+  };
 }
