@@ -68,4 +68,21 @@
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIER5dTWkG/HH2JuWtyQGl892dLBqIvblDnWUIwI9Os1D"
     ];
   };
+  users.users.adrian = {
+    isNormalUser = true;
+    description = "Adrian";
+    shell = pkgs.zsh;
+    extraGroups = [
+      "networkmanager"
+      "wheel"
+    ];
+    packages = with pkgs; [
+      k9s
+      neovim
+    ];
+    openssh.authorizedKeys.keys = [
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBGJlmdhEw08YDrg8zVzIfXfeuKqB0FCtAfnW0TFT18r"
+    ];
+  };
+
 }
