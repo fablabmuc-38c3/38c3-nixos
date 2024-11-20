@@ -7,11 +7,13 @@
 {
   imports = [
     # Include the results of the hardware scan.
-    ./hardware-configuration.nix
+    ./hardware-configuration-minipc.nix
     ./users.nix
     ./38c3-network.nix
     ./zfs.nix
     ./disko-config.nix
+    ./traefik.nix
+   # ./docker-compose.nix
     # ./sops_fetch.nix
   ];
   nix.settings.trusted-users = [ "@wheel" ];
