@@ -27,7 +27,7 @@
         fablabmuc-38c3 = lib.nixosSystem {
           inherit system;
           modules = [
-            ./configuration.nix
+            ./hosts/fablabmuc-38c3/configuration.nix
             disko.nixosModules.disko
             sops-nix.nixosModules.sops
             (
@@ -41,7 +41,7 @@
         fablabmuc-38c3-minipc = lib.nixosSystem {
           inherit system;
           modules = [
-            ./configuration.nix
+            ./hosts/fablabmuc-38c3-minipc/configuration.nix
             disko.nixosModules.disko
             sops-nix.nixosModules.sops
             (

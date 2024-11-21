@@ -16,8 +16,6 @@
     # ./sops_fetch.nix
   ];
   nix.settings.trusted-users = [ "@wheel" ];
-
-  disko.devices.disk.main.device = "/dev/sda";
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
@@ -33,8 +31,6 @@
     };
     openFirewall = true; # This handles the firewall rules automatically
   };
-
-  networking.hostName = "fablabmuc-38c3"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
   # Enable networking
   networking.networkmanager.enable = true;
