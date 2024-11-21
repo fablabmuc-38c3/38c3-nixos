@@ -24,7 +24,21 @@
     {
       formatter.x86_64-linux = nixpkgs.legacyPackages.x86_64-linux.nixfmt-rfc-style;
       nixosConfigurations = {
-        nixos = lib.nixosSystem {
+        fablabmuc-38c3 = lib.nixosSystem {
+          inherit system;
+          modules = [
+            ./configuration.nix
+            disko.nixosModules.disko
+            sops-nix.nixosModules.sops
+            (
+              { pkgs, ... }:
+              {
+                nixpkgs.overlays = [ (final: prev: { nur-packages = nur.packages.${system}; }) ];
+              }
+            )
+          ];
+        };
+        fablabmuc-38c3-minipc = lib.nixosSystem {
           inherit system;
           modules = [
             ./configuration.nix
