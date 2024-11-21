@@ -1,43 +1,65 @@
+{ config, pkgs, ... }:
+{
+  virtualisation.podman.dockerSocket.enable = true;
+  virtualisation.podman.dockerCompat = true;
+  virtualisation.podman.enable = true;
+  users.groups.podman.members = [ "traefik" ];
+
+  networking.firewall.allowedTCPPorts = [
+    80
+    443
+    8080
+  ];
   services.traefik = {
     enable = true;
-
     staticConfigOptions = {
       entryPoints = {
         web = {
           address = ":80";
-          asDefault = true;
-          http.redirections.entrypoint = {
-            to = "websecure";
-            scheme = "https";
-          };
+          #http.redirections.entrypoint = {
+          #  to = "websecure";
+          #  scheme = "https";
+          # };
         };
-
         websecure = {
           address = ":443";
-          asDefault = true;
           http.tls.certResolver = "letsencrypt";
         };
+      };
 
-        log = {
-          level = "INFO";
-          filePath = "${config.services.traefik.dataDir}/traefik.log";
-          format = "json";
+      providers = {
+        docker = {
+          endpoint = "unix:///var/run/docker.sock";
+          exposedByDefault = false;
         };
+      };
 
-        certificatesResolvers.letsencrypt.acme = {
+      certificatesResolvers.letsencrypt = {
+        acme = {
           email = "me@dh274.com";
           storage = "${config.services.traefik.dataDir}/acme.json";
           httpChallenge.entryPoint = "web";
         };
       };
-
+      log = {
+        level = "INFO";
+        filePath = "${config.services.traefik.dataDir}/traefik.log";
+        format = "json";
+      };
       api.dashboard = true;
-      # Access the Traefik dashboard on <Traefik IP>:8080 of your server
-      # api.insecure = true;
+      api.insecure = true;
     };
-
     dynamicConfigOptions = {
-      http.routers = {};
-      http.services = {};
+      http.middlewares = {
+        oauth2-auth.forwardAuth = {
+          address = "http://localhost:4180/";
+          trustForwardHeader = "true";
+          authResponseHeaders = [
+            "X-Auth-Request-Access-Token"
+            "Authorization"
+          ];
+        };
+      };
     };
   };
+}

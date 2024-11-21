@@ -15,292 +15,104 @@
   virtualisation.oci-containers.backend = "podman";
 
   # Containers
-  virtualisation.oci-containers.containers."bazarr" = {
-    image = "lscr.io/linuxserver/bazarr";
+  virtualisation.oci-containers.containers."oauth2-proxy" = {
+    image = "quay.io/oauth2-proxy/oauth2-proxy:latest";
     environment = {
-      "PGID" = "1000";
-      "PUID" = "1000";
-      "TZ" = "Europe/London";
+      "OAUTH2_PROXY_CLIENT_ID" = "Ov23liKH7rfJBxmBN0vI";
+      "OAUTH2_PROXY_CLIENT_SECRET" = "99e4c67b304b2f7147926e29fa602507358a7ccc";
+      "OAUTH2_PROXY_COOKIE_DOMAINS" = ".38c3.tschunk.social";
+      "OAUTH2_PROXY_COOKIE_SECRET" = "acVnYPFTRTdvZ2ypgAKaTmBLy_isCpE9dH6FGLNbgBo=";
+      "OAUTH2_PROXY_EMAIL_DOMAINS" = "*";
+      "OAUTH2_PROXY_GITHUB_ORG" = "fablabmuc-38c3";
+      "OAUTH2_PROXY_PROVIDER" = "github";
+      "OAUTH2_PROXY_REDIRECT_URL" = "https://oauth2.38c3.tschunk.social/oauth2/callback";
+      "OAUTH2_PROXY_REVERSE_PROXY" = "true";
+      "OAUTH2_PROXY_SHOW_DEBUG_ON_ERROR" = "true";
+      "OAUTH2_PROXY_UPSTREAMS" = "static://202";
+      "OAUTH2_PROXY_WHITELIST_DOMAINS" = ".38c3.tschunk.social";
     };
-    volumes = [
-      "/home/simon/compose-test/bazarr/data/config:/config:rw"
-      "/mounted:/video:rw"
-    ];
     ports = [
-      "6767:6767/tcp"
+      "4180:4180/tcp"
     ];
+    cmd = [ "--http-address=0.0.0.0:4180" ];
     labels = {
-      "traefik.docker.network" = "traefik-public";
       "traefik.enable" = "true";
-      "traefik.http.routers.bazarr.entryPoints" = "websecure";
-      "traefik.http.routers.bazarr.rule" = "Host(`bazarr.domain.name`)";
-      "traefik.http.routers.bazarr.tls.certResolver" = "letsEncrypt";
-      "traefik.http.services.bazarr.loadbalancer.server.port" = "6767";
-      "traefik.port" = "6767";
+      "traefik.http.routers.oauth2.entrypoints" = "websecure";
+      "traefik.http.routers.oauth2.rule" = "(Host(`oauth2.38c3.tschunk.social`) && PathPrefix(`/oauth2/`)) || (PathPrefix(`/oauth2/`))";
+      "traefik.http.routers.oauth2.tls" = "true";
+      "traefik.http.routers.oauth2.tls.certResolver" = "letsencrypt";
+      "traefik.http.services.oauth2.loadbalancer.server.port" = "4180";
     };
-    dependsOn = [
-      "traefik"
-    ];
     log-driver = "journald";
     extraOptions = [
-      "--network-alias=bazarr"
-      "--network=traefik-public"
+      "--network-alias=oauth2-proxy"
+      "--network=traefik-test_default"
     ];
   };
-  systemd.services."podman-bazarr" = {
+  systemd.services."podman-oauth2-proxy" = {
     serviceConfig = {
-      Restart = lib.mkOverride 500 "always";
-    };
-    partOf = [
-      "podman-compose-38c3-compose-root.target"
-    ];
-    wantedBy = [
-      "podman-compose-38c3-compose-root.target"
-    ];
-  };
-  virtualisation.oci-containers.containers."flaresolverr" = {
-    image = "flaresolverr/flaresolverr:latest";
-    environment = {
-      "CAPTCHA_SOLVER" = "none";
-      "LOG_HTML" = "false";
-      "LOG_LEVEL" = "info";
-      "TZ" = "Europe/Paris";
-    };
-    ports = [
-      "8191:8191/tcp"
-    ];
-    log-driver = "journald";
-    extraOptions = [
-      "--network-alias=flaresolverr"
-      "--network=38c3-compose_default"
-    ];
-  };
-  systemd.services."podman-flaresolverr" = {
-    serviceConfig = {
-      Restart = lib.mkOverride 500 "always";
+      Restart = lib.mkOverride 500 "no";
     };
     after = [
-      "podman-network-38c3-compose_default.service"
+      "podman-network-traefik-test_default.service"
     ];
     requires = [
-      "podman-network-38c3-compose_default.service"
+      "podman-network-traefik-test_default.service"
     ];
     partOf = [
-      "podman-compose-38c3-compose-root.target"
+      "podman-compose-traefik-test-root.target"
     ];
     wantedBy = [
-      "podman-compose-38c3-compose-root.target"
+      "podman-compose-traefik-test-root.target"
     ];
   };
-  virtualisation.oci-containers.containers."heimdall" = {
-    image = "ghcr.io/linuxserver/heimdall";
+  virtualisation.oci-containers.containers."qbittorrent" = {
+    image = "ghcr.io/hotio/qbittorrent";
     environment = {
       "PGID" = "1000";
       "PUID" = "1000";
-      "TZ" = "Europe/Paris";
+      "TZ" = "Etc/UTC";
+      "UMASK" = "002";
+      "WEBUI_PORTS" = "8080/tcp,8080/udp";
     };
     volumes = [
-      "/home/simon/compose-test/heimdall:/config:rw"
-    ];
-    ports = [
-      "90:90/tcp"
-    ];
-    labels = {
-      "traefik.docker.network" = "traefik-public";
-      "traefik.enable" = "true";
-      "traefik.http.routers.heimdall.entryPoints" = "websecure";
-      "traefik.http.routers.heimdall.rule" = "Host(`hub.domain.name`)";
-      "traefik.http.routers.heimdall.tls.certResolver" = "letsEncrypt";
-      "traefik.port" = "80";
-    };
-    dependsOn = [
-      "traefik"
-    ];
-    log-driver = "journald";
-    extraOptions = [
-      "--network-alias=heimdall"
-      "--network=traefik-public"
-    ];
-  };
-  systemd.services."podman-heimdall" = {
-    serviceConfig = {
-      Restart = lib.mkOverride 500 "always";
-    };
-    partOf = [
-      "podman-compose-38c3-compose-root.target"
-    ];
-    wantedBy = [
-      "podman-compose-38c3-compose-root.target"
-    ];
-  };
-  virtualisation.oci-containers.containers."lidarr" = {
-    image = "lscr.io/linuxserver/lidarr";
-    environment = {
-      "PGID" = "1000";
-      "PUID" = "1000";
-      "TZ" = "Europe/paris";
-    };
-    volumes = [
-      "/home/simon/compose-test/lidarr/data:/config:rw"
-      "/mounted:/music:rw"
-    ];
-    ports = [
-      "8686:8686/tcp"
-    ];
-    labels = {
-      "traefik.docker.network" = "traefik-public";
-      "traefik.enable" = "true";
-      "traefik.http.routers.lidarr.entryPoints" = "websecure";
-      "traefik.http.routers.lidarr.rule" = "Host(`lidarr.domain.name`)";
-      "traefik.http.routers.lidarr.tls.certResolver" = "letsEncrypt";
-      "traefik.http.services.lidarr.loadbalancer.server.port" = "8686";
-      "traefik.port" = "8686";
-    };
-    dependsOn = [
-      "traefik"
-    ];
-    log-driver = "journald";
-    extraOptions = [
-      "--network-alias=lidarr"
-      "--network=traefik-public"
-    ];
-  };
-  systemd.services."podman-lidarr" = {
-    serviceConfig = {
-      Restart = lib.mkOverride 500 "always";
-    };
-    partOf = [
-      "podman-compose-38c3-compose-root.target"
-    ];
-    wantedBy = [
-      "podman-compose-38c3-compose-root.target"
-    ];
-  };
-  virtualisation.oci-containers.containers."overseerr" = {
-    image = "sctx/overseerr:latest";
-    environment = {
-      "LOG_LEVEL" = "info";
-      "TZ" = "Europe/Paris";
-    };
-    volumes = [
-      "/home/simon/compose-test/overseerr/app/config:/app/config:rw"
-    ];
-    ports = [
-      "5055:5055/tcp"
-    ];
-    labels = {
-      "traefik.docker.network" = "traefik-public";
-      "traefik.enable" = "true";
-      "traefik.http.routers.overseerr.entryPoints" = "websecure";
-      "traefik.http.routers.overseerr.rule" = "Host(`request.domain.name`)";
-      "traefik.http.routers.overseerr.tls.certResolver" = "letsEncrypt";
-      "traefik.port" = "5055";
-    };
-    dependsOn = [
-      "traefik"
-    ];
-    log-driver = "journald";
-    extraOptions = [
-      "--network-alias=overseerr"
-      "--network=traefik-public"
-    ];
-  };
-  systemd.services."podman-overseerr" = {
-    serviceConfig = {
-      Restart = lib.mkOverride 500 "always";
-    };
-    partOf = [
-      "podman-compose-38c3-compose-root.target"
-    ];
-    wantedBy = [
-      "podman-compose-38c3-compose-root.target"
-    ];
-  };
-  virtualisation.oci-containers.containers."portainer" = {
-    image = "portainer/portainer-ce";
-    volumes = [
-      "/data/portainer:/data:rw"
-      "/etc/localtime:/etc/localtime:ro"
-      "/etc/timezone:/etc/timezone:ro"
-      "/var/run/docker.sock:/var/run/docker.sock:ro"
-    ];
-    ports = [
-      "9000:9000/tcp"
-    ];
-    cmd = [ "-H" "unix:///var/run/docker.sock" ];
-    labels = {
-      "traefik.docker.network" = "traefik-public";
-      "traefik.enable" = "true";
-      "traefik.http.routers.portainer.entryPoints" = "websecure";
-      "traefik.http.routers.portainer.rule" = "Host(`portainer.domain.name`)";
-      "traefik.http.routers.portainer.tls.certResolver" = "letsEncrypt";
-      "traefik.http.services.portainer.loadbalancer.server.port" = "9000";
-      "traefik.port" = "9000";
-    };
-    dependsOn = [
-      "traefik"
-    ];
-    log-driver = "journald";
-    extraOptions = [
-      "--network-alias=portainer"
-      "--network=traefik-public"
-    ];
-  };
-  systemd.services."podman-portainer" = {
-    serviceConfig = {
-      Restart = lib.mkOverride 500 "always";
-    };
-    partOf = [
-      "podman-compose-38c3-compose-root.target"
-    ];
-    wantedBy = [
-      "podman-compose-38c3-compose-root.target"
-    ];
-  };
-  virtualisation.oci-containers.containers."prowlarr" = {
-    image = "ghcr.io/linuxserver/prowlarr:develop";
-    environment = {
-      "PGID" = "1000";
-      "PUID" = "1000";
-      "TZ" = "Europe/paris";
-    };
-    volumes = [
-      "/home/simon/compose-test/prowlarr/data:/config:rw"
-    ];
-    ports = [
-      "9696:9696/tcp"
+      "traefik-test_qbittorrent-data:/config:rw"
+      "traefik-test_shared-download:/data:rw"
     ];
     labels = {
       "traefik.enable" = "true";
-      "traefik.http.routers.prowlarr.entryPoints" = "websecure";
-      "traefik.http.routers.prowlarr.rule" = "Host(`prowlarr.domain.name`)";
-      "traefik.http.routers.prowlarr.tls.certResolver" = "letsEncrypt";
-      "traefik.http.services.prowlarr.loadbalancer.server.port" = "9696";
+      "traefik.http.routers.torrent.entryPoints" = "websecure";
+      "traefik.http.routers.torrent.middlewares" = "oauth2-auth@file";
+      "traefik.http.routers.torrent.rule" = "Host(`torrent.38c3.tschunk.social`)";
+      "traefik.http.routers.torrent.tls.certResolver" = "letsencrypt";
+      "traefik.http.services.torrent.loadbalancer.server.port" = "8080";
+      "traefik.port" = "8080";
     };
-    dependsOn = [
-      "traefik"
-    ];
     log-driver = "journald";
     extraOptions = [
-      "--network-alias=prowlarr"
-      "--network=38c3-compose_default"
+      "--network-alias=qbittorrent"
+      "--network=traefik-test_default"
     ];
   };
-  systemd.services."podman-prowlarr" = {
+  systemd.services."podman-qbittorrent" = {
     serviceConfig = {
-      Restart = lib.mkOverride 500 "always";
+      Restart = lib.mkOverride 500 "no";
     };
     after = [
-      "podman-network-38c3-compose_default.service"
+      "podman-network-traefik-test_default.service"
+      "podman-volume-traefik-test_qbittorrent-data.service"
+      "podman-volume-traefik-test_shared-download.service"
     ];
     requires = [
-      "podman-network-38c3-compose_default.service"
+      "podman-network-traefik-test_default.service"
+      "podman-volume-traefik-test_qbittorrent-data.service"
+      "podman-volume-traefik-test_shared-download.service"
     ];
     partOf = [
-      "podman-compose-38c3-compose-root.target"
+      "podman-compose-traefik-test-root.target"
     ];
     wantedBy = [
-      "podman-compose-38c3-compose-root.target"
+      "podman-compose-traefik-test-root.target"
     ];
   };
   virtualisation.oci-containers.containers."radarr" = {
@@ -311,8 +123,7 @@
       "TZ" = "Europe/paris";
     };
     volumes = [
-      "/home/simon/compose-test/radarr/data:/config:rw"
-      "/mounted:/video:rw"
+      "traefik-test_radarr-data:/config:rw"
     ];
     ports = [
       "7676:7878/tcp"
@@ -320,17 +131,15 @@
     labels = {
       "traefik.enable" = "true";
       "traefik.http.routers.radarr.entryPoints" = "websecure";
-      "traefik.http.routers.radarr.rule" = "Host(`radarr.domain.name`)";
-      "traefik.http.routers.radarr.tls.certResolver" = "letsEncrypt";
+      "traefik.http.routers.radarr.middlewares" = "oauth2-auth@file";
+      "traefik.http.routers.radarr.rule" = "Host(`radarr.38c3.tschunk.social`)";
+      "traefik.http.routers.radarr.tls.certResolver" = "letsencrypt";
       "traefik.http.services.radarr.loadbalancer.server.port" = "7878";
     };
-    dependsOn = [
-      "traefik"
-    ];
     log-driver = "journald";
     extraOptions = [
       "--network-alias=radarr"
-      "--network=38c3-compose_default"
+      "--network=traefik-test_default"
     ];
   };
   systemd.services."podman-radarr" = {
@@ -338,59 +147,48 @@
       Restart = lib.mkOverride 500 "always";
     };
     after = [
-      "podman-network-38c3-compose_default.service"
+      "podman-network-traefik-test_default.service"
+      "podman-volume-traefik-test_radarr-data.service"
     ];
     requires = [
-      "podman-network-38c3-compose_default.service"
+      "podman-network-traefik-test_default.service"
+      "podman-volume-traefik-test_radarr-data.service"
     ];
     partOf = [
-      "podman-compose-38c3-compose-root.target"
+      "podman-compose-traefik-test-root.target"
     ];
     wantedBy = [
-      "podman-compose-38c3-compose-root.target"
+      "podman-compose-traefik-test-root.target"
     ];
   };
-  virtualisation.oci-containers.containers."readarr" = {
-    image = "ghcr.io/linuxserver/readarr:nightly";
-    environment = {
-      "PGID" = "1000";
-      "PUID" = "1000";
-      "TZ" = "Europe/paris";
-    };
-    volumes = [
-      "/home/simon/compose-test/readarr/data:/config:rw"
-      "/mounted:/books:rw"
-    ];
-    ports = [
-      "8788:8787/tcp"
-    ];
+  virtualisation.oci-containers.containers."simple-service" = {
+    image = "traefik/whoami";
     labels = {
-      "traefik.docker.network" = "traefik-public";
       "traefik.enable" = "true";
-      "traefik.http.routers.readarr.entryPoints" = "websecure";
-      "traefik.http.routers.readarr.rule" = "Host(`readarr.domain.name`)";
-      "traefik.http.routers.readarr.tls.certResolver" = "letsEncrypt";
-      "traefik.http.services.readarr.loadbalancer.server.port" = "8787";
-      "traefik.port" = "8787";
+      "traefik.http.routers.whoami.entrypoints" = "web";
+      "traefik.http.routers.whoami.rule" = "Host(`whoami.localhost`)";
     };
-    dependsOn = [
-      "traefik"
-    ];
     log-driver = "journald";
     extraOptions = [
-      "--network-alias=readarr"
-      "--network=traefik-public"
+      "--network-alias=whoami"
+      "--network=traefik-test_default"
     ];
   };
-  systemd.services."podman-readarr" = {
+  systemd.services."podman-simple-service" = {
     serviceConfig = {
-      Restart = lib.mkOverride 500 "always";
+      Restart = lib.mkOverride 500 "no";
     };
+    after = [
+      "podman-network-traefik-test_default.service"
+    ];
+    requires = [
+      "podman-network-traefik-test_default.service"
+    ];
     partOf = [
-      "podman-compose-38c3-compose-root.target"
+      "podman-compose-traefik-test-root.target"
     ];
     wantedBy = [
-      "podman-compose-38c3-compose-root.target"
+      "podman-compose-traefik-test-root.target"
     ];
   };
   virtualisation.oci-containers.containers."sonarr" = {
@@ -403,134 +201,115 @@
       "TZ" = "Europe/paris";
     };
     volumes = [
-      "/home/simon/compose-test/sonarr/data:/config:rw"
-      "/mounted:/video:rw"
+      "traefik-test_sonarr-data:/config:rw"
     ];
     ports = [
       "7878:7878/tcp"
       "8989:8989/tcp"
     ];
     labels = {
-      "traefik.docker.network" = "traefik-public";
       "traefik.enable" = "true";
       "traefik.http.routers.sonarr.entryPoints" = "websecure";
-      "traefik.http.routers.sonarr.rule" = "Host(`sonarr.domain.name`)";
-      "traefik.http.routers.sonarr.tls.certResolver" = "letsEncrypt";
+      "traefik.http.routers.sonarr.rule" = "Host(`sonarr.38c3.tschunk.social`)";
+      "traefik.http.routers.sonarr.tls.certResolver" = "letsencrypt";
       "traefik.http.services.sonarr.loadbalancer.server.port" = "8989";
       "traefik.port" = "8989";
     };
-    dependsOn = [
-      "traefik"
-    ];
     log-driver = "journald";
     extraOptions = [
       "--network-alias=sonarr"
-      "--network=traefik-public"
+      "--network=traefik-test_default"
     ];
   };
   systemd.services."podman-sonarr" = {
     serviceConfig = {
       Restart = lib.mkOverride 500 "always";
     };
+    after = [
+      "podman-network-traefik-test_default.service"
+      "podman-volume-traefik-test_sonarr-data.service"
+    ];
+    requires = [
+      "podman-network-traefik-test_default.service"
+      "podman-volume-traefik-test_sonarr-data.service"
+    ];
     partOf = [
-      "podman-compose-38c3-compose-root.target"
+      "podman-compose-traefik-test-root.target"
     ];
     wantedBy = [
-      "podman-compose-38c3-compose-root.target"
-    ];
-  };
-  virtualisation.oci-containers.containers."traefik" = {
-    image = "traefik:v2.5.1";
-    volumes = [
-      "/home/simon/compose-test/traefik/logs:/var/log:rw"
-      "/home/simon/compose-test/traefik/routes:/etc/traefik/routes:ro"
-      "/home/simon/compose-test/traefik/traefik.yml:/etc/traefik/traefik.yml:ro"
-      "/var/run/docker.sock:/var/run/docker.sock:rw"
-    ];
-    ports = [
-      "80:80/tcp"
-      "443:443/tcp"
-      "8080:8080/tcp"
-    ];
-    labels = {
-      "traefik.constraint-label" = "traefik-public";
-      "traefik.docker.network" = "traefik-public";
-      "traefik.enable" = "true";
-    };
-    log-driver = "journald";
-    extraOptions = [
-      "--network-alias=traefik"
-      "--network=traefik-public"
-    ];
-  };
-  systemd.services."podman-traefik" = {
-    serviceConfig = {
-      Restart = lib.mkOverride 500 "always";
-    };
-    partOf = [
-      "podman-compose-38c3-compose-root.target"
-    ];
-    wantedBy = [
-      "podman-compose-38c3-compose-root.target"
-    ];
-  };
-  virtualisation.oci-containers.containers."uptime-kuma" = {
-    image = "louislam/uptime-kuma";
-    volumes = [
-      "/home/simon/compose-test/uptime-kuma:/app/data:rw"
-    ];
-    ports = [
-      "3001:3001/tcp"
-    ];
-    labels = {
-      "traefik.docker.network" = "traefik-public";
-      "traefik.enable" = "true";
-      "traefik.http.routers.uptime_kuma.entryPoints" = "websecure";
-      "traefik.http.routers.uptime_kuma.rule" = "Host(`status.domain.name`)";
-      "traefik.http.routers.uptime_kuma.tls.certResolver" = "letsEncrypt";
-      "traefik.http.services.uptime_kuma.loadbalancer.server.port" = "3001";
-      "traefik.port" = "3001";
-    };
-    dependsOn = [
-      "traefik"
-    ];
-    log-driver = "journald";
-    extraOptions = [
-      "--network-alias=uptime-kuma"
-      "--network=traefik-public"
-    ];
-  };
-  systemd.services."podman-uptime-kuma" = {
-    serviceConfig = {
-      Restart = lib.mkOverride 500 "always";
-    };
-    partOf = [
-      "podman-compose-38c3-compose-root.target"
-    ];
-    wantedBy = [
-      "podman-compose-38c3-compose-root.target"
+      "podman-compose-traefik-test-root.target"
     ];
   };
 
   # Networks
-  systemd.services."podman-network-38c3-compose_default" = {
+  systemd.services."podman-network-traefik-test_default" = {
     path = [ pkgs.podman ];
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
-      ExecStop = "podman network rm -f 38c3-compose_default";
+      ExecStop = "podman network rm -f traefik-test_default";
     };
     script = ''
-      podman network inspect 38c3-compose_default || podman network create 38c3-compose_default
+      podman network inspect traefik-test_default || podman network create traefik-test_default
     '';
-    partOf = [ "podman-compose-38c3-compose-root.target" ];
-    wantedBy = [ "podman-compose-38c3-compose-root.target" ];
+    partOf = [ "podman-compose-traefik-test-root.target" ];
+    wantedBy = [ "podman-compose-traefik-test-root.target" ];
+  };
+
+  # Volumes
+  systemd.services."podman-volume-traefik-test_qbittorrent-data" = {
+    path = [ pkgs.podman ];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+    };
+    script = ''
+      podman volume inspect traefik-test_qbittorrent-data || podman volume create traefik-test_qbittorrent-data
+    '';
+    partOf = [ "podman-compose-traefik-test-root.target" ];
+    wantedBy = [ "podman-compose-traefik-test-root.target" ];
+  };
+  systemd.services."podman-volume-traefik-test_radarr-data" = {
+    path = [ pkgs.podman ];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+    };
+    script = ''
+      podman volume inspect traefik-test_radarr-data || podman volume create traefik-test_radarr-data
+    '';
+    partOf = [ "podman-compose-traefik-test-root.target" ];
+    wantedBy = [ "podman-compose-traefik-test-root.target" ];
+  };
+  systemd.services."podman-volume-traefik-test_shared-download" = {
+    path = [ pkgs.podman ];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+    };
+    script = ''
+      podman volume inspect traefik-test_shared-download || podman volume create traefik-test_shared-download
+    '';
+    partOf = [ "podman-compose-traefik-test-root.target" ];
+    wantedBy = [ "podman-compose-traefik-test-root.target" ];
+  };
+  systemd.services."podman-volume-traefik-test_sonarr-data" = {
+    path = [ pkgs.podman ];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+    };
+    script = ''
+      podman volume inspect traefik-test_sonarr-data || podman volume create traefik-test_sonarr-data
+    '';
+    partOf = [ "podman-compose-traefik-test-root.target" ];
+    wantedBy = [ "podman-compose-traefik-test-root.target" ];
   };
 
   # Root service
   # When started, this will automatically create all resources and start
   # the containers. When stopped, this will teardown all resources.
-  systemd.targets."podman-compose-38c3-compose-root" = {
+  systemd.targets."podman-compose-traefik-test-root" = {
     unitConfig = {
       Description = "Root target generated by compose2nix.";
     };
