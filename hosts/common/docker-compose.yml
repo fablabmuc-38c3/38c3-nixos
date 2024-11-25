@@ -1,13 +1,40 @@
 version: "3.3"
 name: "traefik-test"
 services:
+
+  filezilla:
+    image: lscr.io/linuxserver/filezilla:latest
+    container_name: filezilla
+    security_opt:
+      - seccomp:unconfined #optional
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    ports:
+      - 3000:3000
+      - 3001:3001
+    restart: unless-stopped
+
+
   whoami:
-    image: "traefik/whoami"
+    image: "mendhak/http-https-echo"
     container_name: "simple-service"
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.whoami.rule=Host(`whoami.localhost`)"
-      - "traefik.http.routers.whoami.entrypoints=web"
+      - "traefik.http.routers.whoami.entryPoints=websecure"
+      - "traefik.http.routers.whoami.tls.certResolver=letsencrypt"
+      - "traefik.http.routers.whoami.rule=Host(`whoami.38c3.tschunk.social`)"
+      - "traefik.http.routers.whoami.middlewares=oauth2-auth@file"
+  whoami2:
+    image: "traefik/whoami"
+    container_name: "whoami"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.whoami2.entryPoints=websecure"
+      - "traefik.http.routers.whoami2.tls.certResolver=letsencrypt"
+      - "traefik.http.routers.whoami2.rule=Host(`whoami.38c3.tschunk.social`) && Header(`x-auth-request-user`, `DragonHunter274`)"
+      - "traefik.http.routers.whoami2.middlewares=oauth2-auth@file"
   radarr:
     image: linuxserver/radarr:latest
     container_name: radarr
@@ -88,6 +115,8 @@ services:
       OAUTH2_PROXY_WHITELIST_DOMAINS: ".38c3.tschunk.social"
       OAUTH2_PROXY_REVERSE_PROXY: "true"
       OAUTH2_PROXY_UPSTREAMS: "static://202"
+      OAUTH2_PROXY_SET_XAUTHREQUEST: "true"
+      OAUTH2_PROXY_PASS_USER_HEADERS: "true"
       OAUTH2_PROXY_EMAIL_DOMAINS: "*"
       OAUTH2_PROXY_GITHUB_ORG: "fablabmuc-38c3"  # Optional: use GitHub orgs/teams for access control
       OAUTH2_PROXY_SHOW_DEBUG_ON_ERROR: "true"
@@ -104,6 +133,22 @@ services:
       - "traefik.http.routers.oauth2.tls=true"
       - "traefik.http.routers.oauth2.tls.certResolver=letsencrypt"
       - "traefik.http.services.oauth2.loadbalancer.server.port=4180"
+
+  unbound:
+    container_name: unbound
+    image: ghcr.io/dragonhunter274/unbound-docker:latest
+    ports:
+      - 53:5335/tcp
+      - 53:5335/udp
+    volumes:
+      - /etc/unbound/conf.d/:/usr/local/unbound/conf.d/:rw
+    restart: unless-stopped
+    healthcheck:
+      test: /usr/local/unbound/sbin/healthcheck.sh
+      interval: 60s
+      retries: 5
+      start_period: 15s
+      timeout: 30s
 
 volumes:
   shared-download:

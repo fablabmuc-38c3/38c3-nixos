@@ -13,6 +13,7 @@
     ./disko-config.nix
     ./traefik.nix
     ./docker-compose.nix
+    ./unbound.nix
     # ./sops_fetch.nix
   ];
   nix.settings.trusted-users = [ "@wheel" ];

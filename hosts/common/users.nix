@@ -23,6 +23,7 @@
     extraGroups = [
       "networkmanager"
       "wheel"
+      "podman"
     ];
     packages = with pkgs; [
       k9s

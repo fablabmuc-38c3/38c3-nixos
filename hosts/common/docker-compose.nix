@@ -15,6 +15,41 @@
   virtualisation.oci-containers.backend = "podman";
 
   # Containers
+  virtualisation.oci-containers.containers."filezilla" = {
+    image = "lscr.io/linuxserver/filezilla:latest";
+    environment = {
+      "PGID" = "1000";
+      "PUID" = "1000";
+      "TZ" = "Etc/UTC";
+    };
+    ports = [
+      "3000:3000/tcp"
+      "3001:3001/tcp"
+    ];
+    log-driver = "journald";
+    extraOptions = [
+      "--network-alias=filezilla"
+      "--network=traefik-test_default"
+      "--security-opt=seccomp:unconfined"
+    ];
+  };
+  systemd.services."podman-filezilla" = {
+    serviceConfig = {
+      Restart = lib.mkOverride 500 "always";
+    };
+    after = [
+      "podman-network-traefik-test_default.service"
+    ];
+    requires = [
+      "podman-network-traefik-test_default.service"
+    ];
+    partOf = [
+      "podman-compose-traefik-test-root.target"
+    ];
+    wantedBy = [
+      "podman-compose-traefik-test-root.target"
+    ];
+  };
   virtualisation.oci-containers.containers."oauth2-proxy" = {
     image = "quay.io/oauth2-proxy/oauth2-proxy:latest";
     environment = {
@@ -24,9 +59,11 @@
       "OAUTH2_PROXY_COOKIE_SECRET" = "acVnYPFTRTdvZ2ypgAKaTmBLy_isCpE9dH6FGLNbgBo=";
       "OAUTH2_PROXY_EMAIL_DOMAINS" = "*";
       "OAUTH2_PROXY_GITHUB_ORG" = "fablabmuc-38c3";
+      "OAUTH2_PROXY_PASS_USER_HEADERS" = "true";
       "OAUTH2_PROXY_PROVIDER" = "github";
       "OAUTH2_PROXY_REDIRECT_URL" = "https://oauth2.38c3.tschunk.social/oauth2/callback";
       "OAUTH2_PROXY_REVERSE_PROXY" = "true";
+      "OAUTH2_PROXY_SET_XAUTHREQUEST" = "true";
       "OAUTH2_PROXY_SHOW_DEBUG_ON_ERROR" = "true";
       "OAUTH2_PROXY_UPSTREAMS" = "static://202";
       "OAUTH2_PROXY_WHITELIST_DOMAINS" = ".38c3.tschunk.social";
@@ -162,11 +199,13 @@
     ];
   };
   virtualisation.oci-containers.containers."simple-service" = {
-    image = "traefik/whoami";
+    image = "mendhak/http-https-echo";
     labels = {
       "traefik.enable" = "true";
-      "traefik.http.routers.whoami.entrypoints" = "web";
-      "traefik.http.routers.whoami.rule" = "Host(`whoami.localhost`)";
+      "traefik.http.routers.whoami.entryPoints" = "websecure";
+      "traefik.http.routers.whoami.middlewares" = "oauth2-auth@file";
+      "traefik.http.routers.whoami.rule" = "Host(`whoami.38c3.tschunk.social`)";
+      "traefik.http.routers.whoami.tls.certResolver" = "letsencrypt";
     };
     log-driver = "journald";
     extraOptions = [
@@ -233,6 +272,75 @@
     requires = [
       "podman-network-traefik-test_default.service"
       "podman-volume-traefik-test_sonarr-data.service"
+    ];
+    partOf = [
+      "podman-compose-traefik-test-root.target"
+    ];
+    wantedBy = [
+      "podman-compose-traefik-test-root.target"
+    ];
+  };
+  virtualisation.oci-containers.containers."unbound" = {
+    image = "ghcr.io/dragonhunter274/unbound-docker:latest";
+    volumes = [
+      "/etc/unbound/conf.d/:/usr/local/unbound/conf.d:rw"
+    ];
+    ports = [
+      "53:5335/tcp"
+      "53:5335/udp"
+    ];
+    log-driver = "journald";
+    extraOptions = [
+      "--health-cmd=/usr/local/unbound/sbin/healthcheck.sh"
+      "--health-interval=1m0s"
+      "--health-retries=5"
+      "--health-start-period=15s"
+      "--health-timeout=30s"
+      "--network-alias=unbound"
+      "--network=traefik-test_default"
+    ];
+  };
+  systemd.services."podman-unbound" = {
+    serviceConfig = {
+      Restart = lib.mkOverride 500 "always";
+    };
+    after = [
+      "podman-network-traefik-test_default.service"
+    ];
+    requires = [
+      "podman-network-traefik-test_default.service"
+    ];
+    partOf = [
+      "podman-compose-traefik-test-root.target"
+    ];
+    wantedBy = [
+      "podman-compose-traefik-test-root.target"
+    ];
+  };
+  virtualisation.oci-containers.containers."whoami" = {
+    image = "traefik/whoami";
+    labels = {
+      "traefik.enable" = "true";
+      "traefik.http.routers.whoami2.entryPoints" = "websecure";
+      "traefik.http.routers.whoami2.middlewares" = "oauth2-auth@file";
+      "traefik.http.routers.whoami2.rule" = "Host(`whoami.38c3.tschunk.social`) && Header(`x-auth-request-user`, `DragonHunter274`)";
+      "traefik.http.routers.whoami2.tls.certResolver" = "letsencrypt";
+    };
+    log-driver = "journald";
+    extraOptions = [
+      "--network-alias=whoami2"
+      "--network=traefik-test_default"
+    ];
+  };
+  systemd.services."podman-whoami" = {
+    serviceConfig = {
+      Restart = lib.mkOverride 500 "no";
+    };
+    after = [
+      "podman-network-traefik-test_default.service"
+    ];
+    requires = [
+      "podman-network-traefik-test_default.service"
     ];
     partOf = [
       "podman-compose-traefik-test-root.target"

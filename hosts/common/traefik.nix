@@ -16,10 +16,10 @@
       entryPoints = {
         web = {
           address = ":80";
-          #http.redirections.entrypoint = {
-          #  to = "websecure";
-          #  scheme = "https";
-          # };
+     #     http.redirections.entrypoint = {
+      #      to = "websecure";
+       #     scheme = "https";
+       #   };
         };
         websecure = {
           address = ":443";
@@ -55,10 +55,20 @@
           address = "http://localhost:4180/";
           trustForwardHeader = "true";
           authResponseHeaders = [
-            "X-Auth-Request-Access-Token"
-            "Authorization"
+            "X-Auth-Request-Email"
+            "X-Auth-Request-User"
           ];
         };
+      };
+      http.routers = {
+        docker-multiuser = {
+          rule = "Host(`test.38c3.tschunk.social`)";
+          service = "docker-multiuser";
+          middlewares = [ "oauth2-auth" ];
+        };
+      };
+      http.services = {
+        docker-multiuser.loadBalancer.servers = [ { url = "http://localhost:5000"; } ];
       };
     };
   };
