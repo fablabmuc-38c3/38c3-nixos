@@ -12,4 +12,5 @@
   ];
   disko.devices.disk.main.device = "/dev/nvme0n1";
   networking.hostName = "fablabmuc-38c3-minipc"; # Define your hostname.
+  services.tailscale.enable = true;
 }
