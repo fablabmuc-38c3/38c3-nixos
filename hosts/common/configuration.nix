@@ -86,6 +86,7 @@
     nixfmt-rfc-style
     git
     kitty
+    pciutils
   ];
 
   security.sudo.wheelNeedsPassword = false;
