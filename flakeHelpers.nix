@@ -36,7 +36,7 @@ let
           remotes = [
             {
               name = "origin";
-              url = "https://github.com/dragonhunter274/nixos-infra-test.git";
+              url = "https://github.com/fablabmuc-38c3/38c3-nixos.git";
               branches.main.name = "main";
             }
           ];
