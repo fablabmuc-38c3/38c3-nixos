@@ -804,11 +804,11 @@
         "nixpkgs": "nixpkgs_4"
       },
       "locked": {
-        "lastModified": 1749135510,
-        "narHash": "sha256-FTh8ZoWOfHN1UmqlNU6YzAnTedGTSaLKfmifj591cWo=",
+        "lastModified": 1750433027,
+        "narHash": "sha256-YXJkQl3Y0Af3oB2hNngh1T1afE1bIC59q/Rvte2T5bk=",
         "owner": "dragonhunter274",
         "repo": "nur-packages",
-        "rev": "79b600b5030445fb2b07e3864ec89d8ddc8b3642",
+        "rev": "da40e2e7e64774f1de8f4957f7c369d32362c080",
         "type": "github"
       },
       "original": {
