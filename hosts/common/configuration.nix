@@ -198,6 +198,8 @@
     tmux
     zenith
     iproute2
+    htop
+    btop
   ];
 
   security.sudo.wheelNeedsPassword = false;
