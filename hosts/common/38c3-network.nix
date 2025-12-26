@@ -41,6 +41,7 @@
       21
       22
       25565
+      3923
     ];
 
   # Allow FTP and ssh on enp43s0
