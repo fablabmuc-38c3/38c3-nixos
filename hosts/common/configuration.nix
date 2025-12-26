@@ -2,7 +2,12 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, inputs, ... }:
+{
+  config,
+  pkgs,
+  inputs,
+  ...
+}:
 
 {
   imports = [
@@ -54,7 +59,6 @@
     LC_TIME = "de_DE.UTF-8";
   };
 
-
   systemd.services.ip-sender = {
     enable = true;
     description = "bar";
@@ -69,8 +73,6 @@
     wantedBy = [ "multi-user.target" ];
     # ...
   };
-
-
 
   # Configure keymap in X11
   services.xserver.xkb = {
@@ -128,6 +130,13 @@
   services.openssh = {
     enable = true;
     openFirewall = false;
+    settings = {
+      PasswordAuthentication = false;
+      KbdInteractiveAuthentication = false;
+    };
+    extraConfig = ''
+      MaxAuthTries 20
+    '';
   };
 
   # This value determines the NixOS release from which the default
