@@ -21,7 +21,7 @@ let
     emailoverride = "";
     keepnr = 3;
     type = 1;
-    flake = "github:dragonhunter274/nixos-infra-test/pull/${num}/head";
+    flake = "github:fablabmuc-38c3/38c3-nixos/pull/${num}/head";
   }) prs;
 
   # Main jobset
@@ -36,22 +36,22 @@ let
       emailoverride = "";
       keepnr = 10;
       type = 1;
-      flake = "github:dragonhunter274/nixos-infra-test/main";
+      flake = "github:fablabmuc-38c3/38c3-nixos/main";
     };
     # ISO images jobset with minimal retention
     # Uses patched Hydra with flakeref#output support
-    "main-isos" = {
-      enabled = 1;
-      hidden = false;
-      description = "Build ISO images (main branch)";
-      checkinterval = 300;
-      schedulingshares = 50;
-      enableemail = false;
-      emailoverride = "";
-      keepnr = 1; # Only keep 1 evaluation to save storage
-      type = 1; # Flake mode with output selection
-      flake = "github:dragonhunter274/nixos-infra-test/main#isoImages";
-    };
+    # "main-isos" = {
+    #   enabled = 1;
+    #   hidden = false;
+    #   description = "Build ISO images (main branch)";
+    #   checkinterval = 300;
+    #   schedulingshares = 50;
+    #   enableemail = false;
+    #   emailoverride = "";
+    #   keepnr = 1; # Only keep 1 evaluation to save storage
+    #   type = 1; # Flake mode with output selection
+    #   flake = "github:fablabmuc-38c3/38c3-nixos/main#isoImages";
+    # };
   };
 
   allJobsets = prJobsets // mainJobset;

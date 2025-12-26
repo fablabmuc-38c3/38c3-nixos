@@ -12,7 +12,7 @@
   "type": 0,
   "inputs": {
     "nixexpr": {
-      "value": "https://github.com/dragonhunter274/nixos-infra-test main",
+      "value": "https://github.com/fablabmuc-38c3/38c3-nixos main",
       "type": "git",
       "emailresponsible": false
     },
@@ -23,7 +23,7 @@
     },
     "pulls": {
       "type": "githubpulls",
-      "value": "dragonhunter274 nixos-infra-test",
+      "value": "fablabmuc-38c3 38c3-nixos",
       "emailresponsible": false
     }
   }
