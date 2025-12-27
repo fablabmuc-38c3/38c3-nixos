@@ -3,14 +3,14 @@
 {
   networking.tempAddresses = "disabled";
   #networking.interfaces.enp1s0.acceptRA = true;
-#  networking.interfaces.enp43s0 = {
-#    ipv4.addresses = [
-#      {
-#        address = "151.217.62.81";
-#        prefixLength = 23;
-#      }
-#    ];
-#  };
+  #  networking.interfaces.enp43s0 = {
+  #    ipv4.addresses = [
+  #      {
+  #        address = "151.217.62.81";
+  #        prefixLength = 23;
+  #      }
+  #    ];
+  #  };
   networking.networkmanager = {
     settings.connection."ipv6.addr-gen-mode" = "eui64";
     settings.connection."ipv6.ip6-privacy" = "0";
@@ -18,8 +18,16 @@
   services.tailscale.enable = true;
   services.tailscale.useRoutingFeatures = "both";
 
-#  networking.defaultGateway.interface = "enp43s0";
-#  networking.defaultGateway.address = "151.217.62.1";
+  networking.extraHosts = ''
+    2a01:7c8:7c8::1337 github.com
+    2a01:7c8:7c8::1337 api.github.com
+    2a01:7c8:7c8::1337 codeload.github.com
+     2a01:7c8:7c8::1337 objects.githubusercontent.com
+    2a01:7c8:7c8::1337 raw.githubusercontent.com
+  '';
+
+  #  networking.defaultGateway.interface = "enp43s0";
+  #  networking.defaultGateway.address = "151.217.62.1";
 
   services.lldpd.enable = true;
 
@@ -45,9 +53,12 @@
       3923
     ];
 
-  # Allow FTP and ssh on enp43s0
+    # Allow FTP and ssh on enp43s0
     allowedTCPPortRanges = [
-      { from = 21100; to = 21110; }  # Passive mode data ports
+      {
+        from = 21100;
+        to = 21110;
+      } # Passive mode data ports
     ];
 
     interfaces.tailscale0 = {
