@@ -22,4 +22,11 @@
     # Copyparty flag name: --ftp-pr
     "ftp-pr" = "21100-21110";
   };
+
+  # Copyparty runs as user `copyparty`, so binding privileged ports (like 21)
+  # requires CAP_NET_BIND_SERVICE.
+  systemd.services.copyparty.serviceConfig = {
+    AmbientCapabilities = [ "CAP_NET_BIND_SERVICE" ];
+    CapabilityBoundingSet = [ "CAP_NET_BIND_SERVICE" ];
+  };
 }
