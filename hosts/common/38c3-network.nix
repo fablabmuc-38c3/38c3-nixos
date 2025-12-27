@@ -16,6 +16,7 @@
     settings.connection."ipv6.ip6-privacy" = "0";
   };
   services.tailscale.enable = true;
+  services.tailscale.useRoutingFeatures = "both";
 
 #  networking.defaultGateway.interface = "enp43s0";
 #  networking.defaultGateway.address = "151.217.62.1";
