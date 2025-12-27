@@ -18,7 +18,8 @@
       "*::r"
     ];
 
-    # Passive FTP data ports (must match firewall below)
-    ftpps = "21100-21110";
+    # Passive FTP data ports
+    # Copyparty flag name: --ftp-pr
+    "ftp-pr" = "21100-21110";
   };
 }
