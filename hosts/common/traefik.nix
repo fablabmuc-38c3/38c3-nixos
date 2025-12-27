@@ -67,7 +67,7 @@
           middlewares = [ "oauth2-auth" ];
         };
         copyparty = {
-          rule = "Host(`copyparty.38c3.tschunk.social`)";
+          rule = "Host(`copyparty.39c3.tschunk.social`)";
           service = "copyparty";
         }
       };
