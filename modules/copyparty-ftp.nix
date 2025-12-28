@@ -23,6 +23,19 @@
     "ftp-pr" = "21100-21110";
   };
 
+  # Serve this directory.
+  # Copyparty calls these "volumes"; each volume is a named share.
+  # We expose /flash/media as the root of a volume named "media".
+  services.copyparty.volumes = {
+    media = {
+      path = "/flash/media";
+      # anonymous read-only
+      access = {
+        "*" = [ "r" ];
+      };
+    };
+  };
+
   # Copyparty runs as user `copyparty`, so binding privileged ports (like 21)
   # requires CAP_NET_BIND_SERVICE.
   systemd.services.copyparty.serviceConfig = {
