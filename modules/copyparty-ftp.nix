@@ -27,7 +27,7 @@
   # Copyparty calls these "volumes"; each volume is a named share.
   # We expose /flash/media as the root of a volume named "media".
   services.copyparty.volumes = {
-    media = {
+    "/media" = {
       path = "/flash/media";
       # anonymous read-only
       access = {
