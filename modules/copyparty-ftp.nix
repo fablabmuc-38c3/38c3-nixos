@@ -31,7 +31,7 @@
       path = "/flash/media";
       # anonymous read-only
       access = {
-        "*" = [ "r" ];
+        r = "*";
       };
     };
   };
