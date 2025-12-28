@@ -9,12 +9,9 @@
     # Include the results of the hardware scan.
     ./hardware-configuration.nix
     ../common/configuration.nix
+    ../../modules/copyparty-ftp.nix
     # ./sops_fetch.nix
   ];
   disko.devices.disk.main.device = "/dev/sda";
-  networking.hostName = "fablabmuc-38c3"; # Define your hostname.
-  services.copyparty.enable = true;
-  services.copyparty.settings = {
-    i = "0.0.0.0";
-  };
+  networking.hostName = "fablabmuc-38c3"; # Define your hostnafp
 }

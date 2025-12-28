@@ -69,7 +69,7 @@
         copyparty = {
           rule = "Host(`copyparty.39c3.tschunk.social`)";
           service = "copyparty";
-        }
+        };
       };
       http.services = {
         docker-multiuser.loadBalancer.servers = [ { url = "http://localhost:5000"; } ];
