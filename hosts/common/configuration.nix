@@ -112,6 +112,7 @@
     compose2nix
     tmux
     zenith
+    unzip
   ];
 
   security.sudo.wheelNeedsPassword = false;
