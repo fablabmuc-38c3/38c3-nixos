@@ -110,6 +110,7 @@
     kitty
     pciutils
     compose2nix
+    termscp
     tmux
     zenith
     unzip
